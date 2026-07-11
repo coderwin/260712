@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>로또 6/45 추첨기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* colors */
+    --primary:#0066cc;
+    --primary-focus:#0071e3;
+    --primary-on-dark:#2997ff;
+    --ink:#1d1d1f;
+    --body-on-dark:#ffffff;
+    --body-muted:#cccccc;
+    --ink-muted-80:#333333;
+    --ink-muted-48:#7a7a7a;
+    --divider-soft:#f0f0f0;
+    --hairline:#e0e0e0;
+    --canvas:#ffffff;
+    --canvas-parchment:#f5f5f7;
+    --surface-pearl:#fafafc;
+    --surface-tile-1:#272729;
+    --surface-tile-2:#2a2a2c;
+    --surface-tile-3:#252527;
+    --surface-black:#000000;
+    --surface-chip-translucent:rgba(210,210,215,.64);
+    --on-primary:#ffffff;
+
+    /* radius */
+    --r-none:0px;
+    --r-xs:5px;
+    --r-sm:8px;
+    --r-md:11px;
+    --r-lg:18px;
+    --r-pill:9999px;
+
+    /* spacing */
+    --sp-xxs:4px;
+    --sp-xs:8px;
+    --sp-sm:12px;
+    --sp-md:17px;
+    --sp-lg:24px;
+    --sp-xl:32px;
+    --sp-xxl:48px;
+    --sp-section:80px;
+
+    --font-display:"SF Pro Display", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+    --font-text:"SF Pro Text", -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif;
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--canvas-parchment);
+    color:var(--ink);
+    font-family:var(--font-text);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---- global nav ---- */
+  .global-nav{
+    height:44px;
+    background:var(--surface-black);
+    color:var(--body-on-dark);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--font-text);
+    font-size:12px;
+    letter-spacing:-0.12px;
+    line-height:1;
+  }
+  .global-nav span{ opacity:.55; margin:0 10px; }
+
+  /* ---- hero (light tile) ---- */
+  .tile{
+    padding:var(--sp-section) var(--sp-lg);
+    text-align:center;
+  }
+  .tile-light{ background:var(--canvas); }
+  .tile-parchment{ background:var(--canvas-parchment); }
+  .tile-dark{ background:var(--surface-tile-1); color:var(--body-on-dark); }
+
+  .hero-display{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:56px;
+    line-height:1.07;
+    letter-spacing:-0.28px;
+    margin:0 0 var(--sp-sm);
+  }
+  .lead{
+    font-family:var(--font-display);
+    font-weight:400;
+    font-size:28px;
+    line-height:1.14;
+    letter-spacing:0.196px;
+    color:var(--ink-muted-80);
+    margin:0 auto var(--sp-xl);
+    max-width:560px;
+  }
+
+  /* ---- product tile (dark) housing the drum ---- */
+  .stage-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:var(--sp-xl);
+  }
+  .stage{
+    position:relative;
+    width:420px;
+    max-width:88vw;
+  }
+  canvas{
+    display:block;
+    width:100%;
+    height:auto;
+    border-radius:50%;
+    background:radial-gradient(circle at 38% 30%, #34343a, #1c1c1e 72%);
+    box-shadow: 3px 5px 30px 0 rgba(0,0,0,.35);
+  }
+  .chute{
+    position:absolute;
+    right:-4px;
+    top:50%;
+    transform:translateY(-50%);
+    width:42px;
+    height:42px;
+    border-radius:var(--r-full,50%);
+    background:var(--surface-tile-3);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--font-text);
+    font-size:10px;
+    letter-spacing:-0.12px;
+    color:var(--body-muted);
+    border:1px solid rgba(255,255,255,.08);
+  }
+
+  .display-lg{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:40px;
+    line-height:1.1;
+    letter-spacing:0;
+    margin:0;
+  }
+  .tagline{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:21px;
+    line-height:1.19;
+    letter-spacing:0.231px;
+    color:var(--body-muted);
+    margin:var(--sp-xxs) 0 0;
+  }
+
+  /* ---- buttons ---- */
+  .controls{
+    display:flex;
+    gap:var(--sp-sm);
+    margin-top:var(--sp-sm);
+  }
+  button{
+    font-family:var(--font-text);
+    border:none;
+    cursor:pointer;
+    transition:transform .1s ease, filter .15s ease, opacity .15s ease;
+  }
+  button:active{ transform:scale(0.95); }
+  button:focus-visible{ outline:2px solid var(--primary-focus); outline-offset:2px; }
+
+  .btn-primary{
+    background:var(--primary);
+    color:var(--on-primary);
+    font-size:17px;
+    font-weight:400;
+    letter-spacing:-0.374px;
+    border-radius:var(--r-pill);
+    padding:11px 22px;
+  }
+  .btn-primary:hover:not(:disabled){ background:var(--primary-focus); }
+  .btn-primary:disabled{ opacity:.4; cursor:not-allowed; }
+
+  .btn-secondary{
+    background:transparent;
+    color:var(--primary-on-dark);
+    font-size:17px;
+    font-weight:400;
+    letter-spacing:-0.374px;
+    border-radius:var(--r-pill);
+    padding:10px 21px;
+    border:1px solid var(--primary-on-dark);
+  }
+  .btn-secondary:hover{ background:rgba(41,151,255,.1); }
+
+  /* ---- result card (store utility card) ---- */
+  .result-section{
+    background:var(--canvas-parchment);
+    padding:var(--sp-section) var(--sp-lg);
+    display:flex;
+    justify-content:center;
+  }
+  .result-card{
+    width:460px;
+    max-width:100%;
+    background:var(--canvas);
+    border:1px solid var(--hairline);
+    border-radius:var(--r-lg);
+    padding:var(--sp-lg);
+    text-align:center;
+  }
+  .caption-strong{
+    font-family:var(--font-text);
+    font-size:14px;
+    font-weight:600;
+    line-height:1.29;
+    letter-spacing:-0.224px;
+    color:var(--ink-muted-48);
+    text-transform:uppercase;
+  }
+  .balls-row{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    min-height:56px;
+    margin-top:var(--sp-sm);
+  }
+  .divider{
+    height:1px;
+    background:var(--divider-soft);
+    margin:var(--sp-lg) 0;
+  }
+  .result-ball{
+    width:44px;
+    height:44px;
+    border-radius:var(--r-pill);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--font-text);
+    font-weight:600;
+    font-size:16px;
+    color:white;
+    opacity:0;
+    transform:scale(.2) translateY(-16px);
+    animation:pop .5s cubic-bezier(.2,1.4,.4,1) forwards;
+    box-shadow: 3px 5px 14px 0 rgba(0,0,0,.22);
+  }
+  .result-ball.bonus{
+    box-shadow: 3px 5px 14px 0 rgba(0,0,0,.22), 0 0 0 2px var(--primary-focus);
+  }
+  @keyframes pop{
+    0%{ opacity:0; transform:scale(.2) translateY(-16px); }
+    60%{ opacity:1; transform:scale(1.12) translateY(0); }
+    100%{ opacity:1; transform:scale(1) translateY(0); }
+  }
+  .status{
+    margin-top:var(--sp-sm);
+    font-family:var(--font-text);
+    font-size:14px;
+    font-weight:400;
+    letter-spacing:-0.224px;
+    color:var(--ink-muted-48);
+    min-height:18px;
+  }
+
+  /* ---- footer ---- */
+  .footer{
+    background:var(--canvas-parchment);
+    color:var(--ink-muted-48);
+    text-align:center;
+    padding:var(--sp-xxl) var(--sp-lg);
+    font-family:var(--font-text);
+    font-size:12px;
+    font-weight:400;
+    letter-spacing:-0.12px;
+  }
+
+  @media (max-width:640px){
+    .hero-display{ font-size:34px; }
+    .lead{ font-size:20px; }
+    .tile{ padding:var(--sp-xxl) var(--sp-md); }
+  }
+</style>
+</head>
+<body>
+
+<div class="global-nav">로또 <span>|</span> 6 / 45 추첨기</div>
+
+<section class="tile tile-light">
+  <h1 class="hero-display">로또 6/45 추첨기</h1>
+  <p class="lead">실제 추첨기처럼 공이 돌아가며<br>번호를 하나씩 뽑습니다.</p>
+</section>
+
+<section class="tile tile-dark">
+  <div class="stage-wrap">
+    <div class="stage">
+      <canvas id="drum" width="420" height="420"></canvas>
+      <div class="chute">배출구</div>
+    </div>
+    <div>
+      <div class="tagline">추첨을 시작하세요</div>
+    </div>
+    <div class="controls">
+      <button class="btn-primary" id="drawBtn" onclick="startDraw()">추첨 시작</button>
+      <button class="btn-secondary" id="resetBtn" onclick="resetAll()">다시 하기</button>
+    </div>
+  </div>
+</section>
+
+<section class="result-section">
+  <div class="result-card">
+    <div class="caption-strong">당첨 번호</div>
+    <div class="balls-row" id="mainRow"></div>
+    <div class="divider"></div>
+    <div class="caption-strong">보너스 번호</div>
+    <div class="balls-row" id="bonusRow"></div>
+    <div class="status" id="status"></div>
+  </div>
+</section>
+
+<div class="footer">공 색상은 실제 로또 6/45 색상표(1–10 노랑 · 11–20 파랑 · 21–30 빨강 · 31–40 회색 · 41–45 초록)를 따릅니다.</div>
+
+<script>
+const N = 45;
+const canvas = document.getElementById('drum');
+const ctx = canvas.getContext('2d');
+const W = canvas.width, H = canvas.height;
+const CX = W/2, CY = H/2, R = W/2 - 14;
+
+function ballColor(n){
+  if(n<=10) return {a:'#ffd23f', b:'#e6a800'};
+  if(n<=20) return {a:'#5aa7ff', b:'#1a5fd6'};
+  if(n<=30) return {a:'#ff6b6b', b:'#d62828'};
+  if(n<=40) return {a:'#b8bec9', b:'#6e7480'};
+  return {a:'#6be08a', b:'#1f9e4a'};
+}
+
+let balls = [];
+function initBalls(){
+  balls = [];
+  const br = 15;
+  for(let i=1;i<=N;i++){
+    let placed=false, x,y, tries=0;
+    while(!placed && tries<200){
+      const ang = Math.random()*Math.PI*2;
+      const rad = Math.random()*(R-br);
+      x = CX + Math.cos(ang)*rad;
+      y = CY + Math.sin(ang)*rad;
+      placed = balls.every(b => Math.hypot(b.x-x,b.y-y) > br*2.05);
+      tries++;
+    }
+    balls.push({
+      n:i, x, y,
+      vx: (Math.random()-0.5)*2,
+      vy: (Math.random()-0.5)*2,
+      r: br,
+      state: 'in', // in, exiting, done
+      col: ballColor(i)
+    });
+  }
+}
+initBalls();
+
+let agitation = 0.4;
+let drawing = false;
+let angle = 0;
+
+function step(){
+  angle += 0.01;
+  const gx = Math.cos(angle)*0.06;
+  const gy = Math.sin(angle)*0.06;
+
+  for(const b of balls){
+    if(b.state !== 'in') continue;
+    b.vx += gx;
+    b.vy += gy;
+    b.vx += (Math.random()-0.5)*0.15*agitation;
+    b.vy += (Math.random()-0.5)*0.15*agitation;
+    const speed = Math.hypot(b.vx,b.vy);
+    const maxSpd = 3.2*agitation + 0.6;
+    if(speed>maxSpd){ b.vx = b.vx/speed*maxSpd; b.vy = b.vy/speed*maxSpd; }
+    b.x += b.vx;
+    b.y += b.vy;
+
+    const dx = b.x-CX, dy = b.y-CY;
+    const dist = Math.hypot(dx,dy);
+    if(dist + b.r > R){
+      const nx = dx/dist, ny = dy/dist;
+      b.x = CX + nx*(R-b.r);
+      b.y = CY + ny*(R-b.r);
+      const dot = b.vx*nx + b.vy*ny;
+      b.vx -= 2*dot*nx;
+      b.vy -= 2*dot*ny;
+      b.vx *= 0.9; b.vy *= 0.9;
+    }
+  }
+  const inBalls = balls.filter(b=>b.state==='in');
+  for(let i=0;i<inBalls.length;i++){
+    for(let j=i+1;j<inBalls.length;j++){
+      const a=inBalls[i], b=inBalls[j];
+      const dx=b.x-a.x, dy=b.y-a.y;
+      const d=Math.hypot(dx,dy);
+      const minD=a.r+b.r;
+      if(d>0 && d<minD){
+        const nx=dx/d, ny=dy/d;
+        const overlap=(minD-d)/2;
+        a.x -= nx*overlap; a.y -= ny*overlap;
+        b.x += nx*overlap; b.y += ny*overlap;
+        const avx=a.vx, avy=a.vy;
+        a.vx=b.vx*0.95; a.vy=b.vy*0.95;
+        b.vx=avx*0.95; b.vy=avy*0.95;
+      }
+    }
+  }
+  for(const b of balls){
+    if(b.state==='exiting'){
+      const tx = W-4, ty = H/2;
+      const dx=tx-b.x, dy=ty-b.y;
+      b.x += dx*0.18;
+      b.y += dy*0.18;
+    }
+  }
+
+  render();
+  requestAnimationFrame(step);
+}
+
+function render(){
+  ctx.clearRect(0,0,W,H);
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(CX,CY,R,0,Math.PI*2);
+  ctx.clip();
+  ctx.fillStyle = 'rgba(0,0,0,0.15)';
+  ctx.fillRect(0,0,W,H);
+  ctx.restore();
+
+  for(const b of balls){
+    if(b.state==='done') continue;
+    drawBall(b);
+  }
+}
+
+function drawBall(b){
+  const grad = ctx.createRadialGradient(b.x-b.r*0.35,b.y-b.r*0.35,b.r*0.1,b.x,b.y,b.r);
+  grad.addColorStop(0, '#ffffff');
+  grad.addColorStop(0.25, b.col.a);
+  grad.addColorStop(1, b.col.b);
+  ctx.beginPath();
+  ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+  ctx.stroke();
+
+  ctx.font = `600 ${b.r}px "SF Pro Text", Inter, system-ui`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#ffffff';
+  ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+  ctx.lineWidth = 3;
+  ctx.strokeText(b.n, b.x, b.y+1);
+  ctx.fillText(b.n, b.x, b.y+1);
+}
+
+requestAnimationFrame(step);
+
+const statusEl = document.getElementById('status');
+const mainRow = document.getElementById('mainRow');
+const bonusRow = document.getElementById('bonusRow');
+const drawBtn = document.getElementById('drawBtn');
+
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+async function startDraw(){
+  if(drawing) return;
+  drawing = true;
+  drawBtn.disabled = true;
+  mainRow.innerHTML = '';
+  bonusRow.innerHTML = '';
+  statusEl.textContent = '공이 섞이는 중...';
+  agitation = 1.6;
+  await sleep(1800);
+
+  const picked = [];
+  for(let i=0;i<6;i++){
+    statusEl.textContent = `${i+1}번째 번호를 뽑는 중...`;
+    await sleep(650);
+    const num = pickOne(picked);
+    picked.push(num);
+    await sleep(650);
+    revealBall(num, mainRow, false);
+  }
+
+  statusEl.textContent = '보너스 번호를 뽑는 중...';
+  await sleep(700);
+  agitation = 1.2;
+  await sleep(500);
+  const bonus = pickOne(picked);
+  await sleep(500);
+  revealBall(bonus, bonusRow, true);
+
+  statusEl.textContent = '추첨 완료!';
+  agitation = 0.3;
+  drawBtn.disabled = false;
+  drawing = false;
+}
+
+function pickOne(exclude){
+  const candidates = balls.filter(b => b.state==='in' && !exclude.includes(b.n));
+  const chosen = candidates[Math.floor(Math.random()*candidates.length)];
+  chosen.state = 'exiting';
+  setTimeout(()=>{ chosen.state = 'done'; }, 900);
+  return chosen.n;
+}
+
+function revealBall(num, container, isBonus){
+  const div = document.createElement('div');
+  const col = ballColor(num);
+  div.className = 'result-ball' + (isBonus?' bonus':'');
+  div.style.background = `radial-gradient(circle at 35% 30%, #fff, ${col.a} 30%, ${col.b} 100%)`;
+  div.textContent = num;
+  container.appendChild(div);
+}
+
+function resetAll(){
+  agitation = 0.4;
+  drawing = false;
+  drawBtn.disabled = false;
+  mainRow.innerHTML = '';
+  bonusRow.innerHTML = '';
+  statusEl.textContent = '';
+  initBalls();
+}
+</script>
+</body>
+</html>
