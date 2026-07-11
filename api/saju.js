@@ -1,5 +1,6 @@
 // api/saju.js
 // Vercel Node.js Serverless Function (Gemini)
+// redeploy trigger: GEMINI_API_KEY registered
 // POST { birthDate: "YYYY-MM-DD", birthTime: "HH:MM"|"", timeUnknown: bool, calendarType: "solar"|"lunar", gender: "male"|"female"|"" }
 // -> { analysis: string, numbers: number[6], bonus: number }
 
