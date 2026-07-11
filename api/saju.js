@@ -1,6 +1,5 @@
 // api/saju.js
-// Vercel Node.js Serverless Function (Gemini)
-// redeploy trigger: GEMINI_API_KEY confirmed on Production+Preview
+// Vercel Node.js Serverless Function (Gemini + Supabase logging)
 // POST { birthDate: "YYYY-MM-DD", birthTime: "HH:MM"|"", timeUnknown: bool, calendarType: "solar"|"lunar", gender: "male"|"female"|"" }
 // -> { analysis: string, numbers: number[6], bonus: number }
 
@@ -51,6 +50,8 @@ module.exports = async (req, res) => {
 
 위 정보를 바탕으로 사주를 풀이하고 로또 번호를 추천해주세요.`;
 
+  let analysis, numbers, bonus;
+
   try {
     const upstream = await fetch(
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent',
@@ -93,18 +94,58 @@ module.exports = async (req, res) => {
       parsed = match ? JSON.parse(match[0]) : {};
     }
 
-    const numbers = sanitizeNumbers(parsed.numbers, birthDate + timeLabel);
-    const bonus = sanitizeBonus(parsed.bonus, numbers, birthDate + timeLabel);
-    const analysis = (typeof parsed.analysis === 'string' && parsed.analysis.trim())
+    numbers = sanitizeNumbers(parsed.numbers, birthDate + timeLabel);
+    bonus = sanitizeBonus(parsed.bonus, numbers, birthDate + timeLabel);
+    analysis = (typeof parsed.analysis === 'string' && parsed.analysis.trim())
       ? parsed.analysis.trim()
       : '오늘 당신의 사주 기운이 담긴 번호를 준비했어요.';
-
-    res.status(200).json({ analysis, numbers, bonus });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: '서버 오류가 발생했습니다.' });
+    return;
   }
+
+  // Supabase에 기록 (실패해도 사용자 응답에는 영향 없음)
+  await saveToSupabase({
+    birth_date: birthDate,
+    birth_time: (!timeUnknown && birthTime && /^\d{2}:\d{2}$/.test(birthTime)) ? birthTime : null,
+    time_unknown: !!timeUnknown,
+    calendar_type: calendarType === 'lunar' ? 'lunar' : 'solar',
+    gender: gender === 'male' || gender === 'female' ? gender : null,
+    analysis,
+    numbers,
+    bonus,
+  });
+
+  res.status(200).json({ analysis, numbers, bonus });
 };
+
+async function saveToSupabase(record) {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    console.warn('Supabase 환경변수(SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY)가 없어 기록을 건너뜁니다.');
+    return;
+  }
+  try {
+    const resp = await fetch(`${url.replace(/\/$/, '')}/rest/v1/saju_draws`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        Prefer: 'return=minimal',
+      },
+      body: JSON.stringify(record),
+    });
+    if (!resp.ok) {
+      const errText = await resp.text();
+      console.error('Supabase insert failed:', resp.status, errText);
+    }
+  } catch (err) {
+    console.error('Supabase insert error:', err);
+  }
+}
 
 function sanitizeNumbers(arr, seedStr) {
   const valid = Array.isArray(arr)
