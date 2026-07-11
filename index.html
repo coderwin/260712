@@ -75,7 +75,7 @@
   }
   .global-nav span{ opacity:.55; margin:0 10px; }
 
-  /* ---- hero (light tile) ---- */
+  /* ---- tiles ---- */
   .tile{
     padding:var(--sp-section) var(--sp-lg);
     text-align:center;
@@ -101,6 +101,143 @@
     color:var(--ink-muted-80);
     margin:0 auto var(--sp-xl);
     max-width:560px;
+  }
+  .lead-airy{
+    font-family:var(--font-text);
+    font-weight:300;
+    font-size:20px;
+    line-height:1.5;
+    color:var(--ink-muted-80);
+    margin:0 auto var(--sp-xl);
+    max-width:480px;
+  }
+
+  /* ---- saju panel ---- */
+  .saju-card{
+    max-width:480px;
+    margin:0 auto;
+    background:var(--canvas);
+    border:1px solid var(--hairline);
+    border-radius:var(--r-lg);
+    padding:var(--sp-lg);
+    text-align:left;
+  }
+  .saju-form{
+    display:flex;
+    flex-direction:column;
+    gap:var(--sp-md);
+  }
+  .field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .field-label{
+    font-family:var(--font-text);
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:-0.224px;
+    color:var(--ink-muted-80);
+  }
+  .field input[type="date"],
+  .field input[type="time"],
+  .field select{
+    font-family:var(--font-text);
+    font-size:17px;
+    letter-spacing:-0.374px;
+    color:var(--ink);
+    background:var(--canvas);
+    border:1px solid var(--hairline);
+    border-radius:var(--r-pill);
+    padding:11px 20px;
+    height:44px;
+    width:100%;
+  }
+  .field input:focus-visible,
+  .field select:focus-visible{
+    outline:2px solid var(--primary-focus);
+    outline-offset:1px;
+  }
+  .checkbox-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-family:var(--font-text);
+    font-size:14px;
+    color:var(--ink-muted-80);
+  }
+  .chip-group{
+    display:flex;
+    gap:8px;
+  }
+  .chip{ position:relative; cursor:pointer; }
+  .chip input{
+    position:absolute;
+    opacity:0;
+    width:0; height:0;
+  }
+  .chip span{
+    display:inline-block;
+    background:var(--canvas);
+    border:1px solid var(--hairline);
+    border-radius:var(--r-pill);
+    padding:9px 18px;
+    font-family:var(--font-text);
+    font-size:14px;
+    color:var(--ink);
+    transition:box-shadow .15s, color .15s;
+  }
+  .chip input:checked + span{
+    box-shadow:0 0 0 2px var(--primary-focus) inset;
+    color:var(--primary);
+    font-weight:600;
+  }
+
+  .saju-status{
+    margin-top:var(--sp-sm);
+    font-family:var(--font-text);
+    font-size:14px;
+    color:var(--ink-muted-48);
+    min-height:18px;
+  }
+  .saju-chat{
+    display:flex;
+    gap:var(--sp-sm);
+    align-items:flex-start;
+    margin-top:var(--sp-lg);
+    text-align:left;
+  }
+  .saju-avatar{
+    flex:0 0 auto;
+    width:36px;
+    height:36px;
+    border-radius:var(--r-pill);
+    background:var(--primary);
+    color:var(--on-primary);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--font-text);
+    font-weight:600;
+    font-size:13px;
+  }
+  .saju-bubble{
+    background:var(--surface-pearl);
+    border:1px solid var(--divider-soft);
+    border-radius:var(--r-lg);
+    padding:var(--sp-md);
+    font-family:var(--font-text);
+    font-size:15px;
+    line-height:1.55;
+    color:var(--ink);
+  }
+  .fine-print{
+    font-family:var(--font-text);
+    font-size:12px;
+    line-height:1.4;
+    letter-spacing:-0.12px;
+    color:var(--ink-muted-48);
+    margin-top:var(--sp-md);
   }
 
   /* ---- product tile (dark) housing the drum ---- */
@@ -130,7 +267,7 @@
     transform:translateY(-50%);
     width:42px;
     height:42px;
-    border-radius:var(--r-full,50%);
+    border-radius:50%;
     background:var(--surface-tile-3);
     display:flex;
     align-items:center;
@@ -142,14 +279,6 @@
     border:1px solid rgba(255,255,255,.08);
   }
 
-  .display-lg{
-    font-family:var(--font-display);
-    font-weight:600;
-    font-size:40px;
-    line-height:1.1;
-    letter-spacing:0;
-    margin:0;
-  }
   .tagline{
     font-family:var(--font-display);
     font-weight:600;
@@ -158,6 +287,10 @@
     letter-spacing:0.231px;
     color:var(--body-muted);
     margin:var(--sp-xxs) 0 0;
+  }
+  .tagline-dark-title{
+    color:var(--body-on-dark);
+    margin-bottom:var(--sp-xxs);
   }
 
   /* ---- buttons ---- */
@@ -186,6 +319,7 @@
   }
   .btn-primary:hover:not(:disabled){ background:var(--primary-focus); }
   .btn-primary:disabled{ opacity:.4; cursor:not-allowed; }
+  .btn-primary.full-width{ width:100%; text-align:center; }
 
   .btn-secondary{
     background:transparent;
@@ -283,6 +417,7 @@
     font-weight:400;
     letter-spacing:-0.12px;
   }
+  .footer p{ margin:0 0 var(--sp-xxs); }
 
   @media (max-width:640px){
     .hero-display{ font-size:34px; }
@@ -300,7 +435,64 @@
   <p class="lead">실제 추첨기처럼 공이 돌아가며<br>번호를 하나씩 뽑습니다.</p>
 </section>
 
-<section class="tile tile-dark">
+<section class="tile tile-parchment" id="sajuSection">
+  <div class="tagline" style="color:var(--ink-muted-80);">AI 사주 번호 추천</div>
+  <p class="lead-airy">생년월일과 태어난 시간을 입력하면 사주 오행을 분석해서<br>어울리는 번호를 추천해 드려요.</p>
+
+  <div class="saju-card">
+    <form class="saju-form" id="sajuForm">
+      <div class="field">
+        <label class="field-label" for="birthDate">생년월일</label>
+        <input type="date" id="birthDate" name="birthDate" required>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="birthTime">태어난 시간</label>
+        <input type="time" id="birthTime" name="birthTime">
+        <label class="checkbox-row">
+          <input type="checkbox" id="noTimeCheckbox">
+          태어난 시간을 모릅니다
+        </label>
+      </div>
+
+      <div class="field">
+        <span class="field-label">달력 기준</span>
+        <div class="chip-group">
+          <label class="chip">
+            <input type="radio" name="calendarType" value="solar" checked>
+            <span>양력</span>
+          </label>
+          <label class="chip">
+            <input type="radio" name="calendarType" value="lunar">
+            <span>음력</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="genderSelect">성별 (선택)</label>
+        <select id="genderSelect" name="gender">
+          <option value="">선택 안 함</option>
+          <option value="male">남성</option>
+          <option value="female">여성</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-primary full-width" id="sajuSubmitBtn">사주 분석하고 번호 추천받기</button>
+    </form>
+
+    <div class="saju-status" id="sajuStatus"></div>
+
+    <div class="saju-chat" id="sajuResult" hidden>
+      <div class="saju-avatar">AI</div>
+      <div class="saju-bubble" id="sajuAnalysisText"></div>
+    </div>
+
+    <p class="fine-print">AI의 사주 해석은 재미로 보는 오락 콘텐츠이며, 실제 로또 당첨 확률과는 무관합니다.</p>
+  </div>
+</section>
+
+<section class="tile tile-dark" id="drumSection">
   <div class="stage-wrap">
     <div class="stage">
       <canvas id="drum" width="420" height="420"></canvas>
@@ -327,7 +519,10 @@
   </div>
 </section>
 
-<div class="footer">공 색상은 실제 로또 6/45 색상표(1–10 노랑 · 11–20 파랑 · 21–30 빨강 · 31–40 회색 · 41–45 초록)를 따릅니다.</div>
+<div class="footer">
+  <p>공 색상은 실제 로또 6/45 색상표(1–10 노랑 · 11–20 파랑 · 21–30 빨강 · 31–40 회색 · 41–45 초록)를 따릅니다.</p>
+  <p>AI 사주 번호 추천은 오락 목적의 기능이며 당첨을 보장하지 않습니다.</p>
+</div>
 
 <script>
 const N = 45;
@@ -482,7 +677,7 @@ const drawBtn = document.getElementById('drawBtn');
 
 function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 
-async function startDraw(){
+async function startDraw(forced){
   if(drawing) return;
   drawing = true;
   drawBtn.disabled = true;
@@ -496,7 +691,8 @@ async function startDraw(){
   for(let i=0;i<6;i++){
     statusEl.textContent = `${i+1}번째 번호를 뽑는 중...`;
     await sleep(650);
-    const num = pickOne(picked);
+    const forcedNum = forced && forced.numbers ? forced.numbers[i] : undefined;
+    const num = pickOne(picked, forcedNum);
     picked.push(num);
     await sleep(650);
     revealBall(num, mainRow, false);
@@ -506,19 +702,25 @@ async function startDraw(){
   await sleep(700);
   agitation = 1.2;
   await sleep(500);
-  const bonus = pickOne(picked);
+  const bonus = pickOne(picked, forced ? forced.bonus : undefined);
   await sleep(500);
   revealBall(bonus, bonusRow, true);
 
-  statusEl.textContent = '추첨 완료!';
+  statusEl.textContent = forced ? 'AI 사주 분석 기반 추첨 완료!' : '추첨 완료!';
   agitation = 0.3;
   drawBtn.disabled = false;
   drawing = false;
 }
 
-function pickOne(exclude){
-  const candidates = balls.filter(b => b.state==='in' && !exclude.includes(b.n));
-  const chosen = candidates[Math.floor(Math.random()*candidates.length)];
+function pickOne(exclude, forcedNum){
+  let chosen;
+  if(forcedNum !== undefined && forcedNum !== null){
+    chosen = balls.find(b => b.n === forcedNum && b.state === 'in' && !exclude.includes(b.n));
+  }
+  if(!chosen){
+    const candidates = balls.filter(b => b.state==='in' && !exclude.includes(b.n));
+    chosen = candidates[Math.floor(Math.random()*candidates.length)];
+  }
   chosen.state = 'exiting';
   setTimeout(()=>{ chosen.state = 'done'; }, 900);
   return chosen.n;
@@ -542,6 +744,62 @@ function resetAll(){
   statusEl.textContent = '';
   initBalls();
 }
+
+/* ---- saju chatbot form ---- */
+const sajuForm = document.getElementById('sajuForm');
+const sajuStatus = document.getElementById('sajuStatus');
+const sajuResult = document.getElementById('sajuResult');
+const sajuAnalysisText = document.getElementById('sajuAnalysisText');
+const sajuSubmitBtn = document.getElementById('sajuSubmitBtn');
+const noTimeCheckbox = document.getElementById('noTimeCheckbox');
+const birthTimeInput = document.getElementById('birthTime');
+
+noTimeCheckbox.addEventListener('change', () => {
+  birthTimeInput.disabled = noTimeCheckbox.checked;
+  if(noTimeCheckbox.checked) birthTimeInput.value = '';
+});
+
+sajuForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if(drawing || sajuSubmitBtn.disabled) return;
+
+  const birthDate = document.getElementById('birthDate').value;
+  if(!birthDate){
+    sajuStatus.textContent = '생년월일을 입력해 주세요.';
+    return;
+  }
+  const birthTime = noTimeCheckbox.checked ? '' : birthTimeInput.value;
+  const calendarType = sajuForm.calendarType.value;
+  const gender = document.getElementById('genderSelect').value;
+
+  sajuSubmitBtn.disabled = true;
+  sajuResult.hidden = true;
+  sajuStatus.textContent = '사주를 분석하는 중...';
+
+  try{
+    const resp = await fetch('/api/saju', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ birthDate, birthTime, calendarType, gender })
+    });
+    const data = await resp.json();
+    if(!resp.ok){
+      throw new Error(data.error || '분석에 실패했습니다.');
+    }
+
+    sajuStatus.textContent = '';
+    sajuAnalysisText.textContent = data.analysis;
+    sajuResult.hidden = false;
+
+    document.getElementById('drumSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    await sleep(500);
+    startDraw({ numbers: data.numbers, bonus: data.bonus });
+  }catch(err){
+    sajuStatus.textContent = err.message || '오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+  }finally{
+    sajuSubmitBtn.disabled = false;
+  }
+});
 </script>
 </body>
 </html>
