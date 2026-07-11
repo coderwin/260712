@@ -1,5 +1,5 @@
 // api/saju.js
-// Vercel Node.js Serverless Function
+// Vercel Node.js Serverless Function (Gemini)
 // POST { birthDate: "YYYY-MM-DD", birthTime: "HH:MM"|"", timeUnknown: bool, calendarType: "solar"|"lunar", gender: "male"|"female"|"" }
 // -> { analysis: string, numbers: number[6], bonus: number }
 
@@ -10,9 +10,9 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    res.status(500).json({ error: '서버에 OPENAI_API_KEY 환경변수가 설정되어 있지 않습니다.' });
+    res.status(500).json({ error: '서버에 GEMINI_API_KEY 환경변수가 설정되어 있지 않습니다.' });
     return;
   }
 
@@ -51,32 +51,38 @@ module.exports = async (req, res) => {
 위 정보를 바탕으로 사주를 풀이하고 로또 번호를 추천해주세요.`;
 
   try {
-    const upstream = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-5.4-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-        response_format: { type: 'json_object' },
-        temperature: 0.9,
-      }),
-    });
+    const upstream = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey,
+        },
+        body: JSON.stringify({
+          contents: [
+            { role: 'user', parts: [{ text: userPrompt }] },
+          ],
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          generationConfig: {
+            responseMimeType: 'application/json',
+            temperature: 0.9,
+          },
+        }),
+      }
+    );
 
     if (!upstream.ok) {
       const errText = await upstream.text();
-      console.error('OpenAI API error:', upstream.status, errText);
+      console.error('Gemini API error:', upstream.status, errText);
       res.status(502).json({ error: 'AI 분석 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.' });
       return;
     }
 
     const data = await upstream.json();
-    const raw = (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '{}';
+    const cand = data && data.candidates && data.candidates[0];
+    const part = cand && cand.content && cand.content.parts && cand.content.parts[0];
+    const raw = (part && part.text) || '{}';
 
     let parsed;
     try {
